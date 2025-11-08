@@ -357,6 +357,11 @@ const App = () => {
     getRoots: () => rootsRef.current,
     defaultLoggingLevel: logLevel,
     metadata,
+    // EXPERIMENTAL CALLBACK HANDLER
+    onToolListChanged: (tools: Tool[]) => {
+      setTools(tools);
+      cacheToolOutputSchemas(tools);
+    },
   });
 
   useEffect(() => {
