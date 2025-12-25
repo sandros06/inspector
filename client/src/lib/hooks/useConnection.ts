@@ -31,6 +31,7 @@ import {
   LoggingLevel,
   ElicitRequestSchema,
   Implementation,
+  Tool,
 } from "@modelcontextprotocol/sdk/types.js";
 import type {
   AnySchema,
@@ -89,6 +90,7 @@ interface UseConnectionOptions {
   defaultLoggingLevel?: LoggingLevel;
   serverImplementation?: Implementation;
   metadata?: Record<string, string>;
+  onToolListChanged?: (tools: Tool[]) => void;
 }
 
 export function useConnection({
@@ -109,6 +111,7 @@ export function useConnection({
   getRoots,
   defaultLoggingLevel,
   metadata = {},
+  onToolListChanged,
 }: UseConnectionOptions) {
   const [connectionStatus, setConnectionStatus] =
     useState<ConnectionStatus>("disconnected");
@@ -410,6 +413,44 @@ export function useConnection({
     }
   };
 
+  const handleToolListChanged = (err: Error | null, tools: Tool[] | null) => {
+    if (err != null) {
+      // Handle error - extract message safely
+      const errorMessage = err.message;
+      console.error("Tool list changed error:", errorMessage);
+
+      // Show error toast to user
+      toast({
+        title: "Error",
+        description: `Failed to update tool list: ${errorMessage}`,
+        variant: "destructive",
+      });
+
+      // Notify observers about the error
+      if (onNotification) {
+        onNotification({
+          method: "notifications/error",
+          params: {
+            error: errorMessage,
+          },
+        } as unknown as Notification);
+      }
+    } else if (tools && tools.length > 0) {
+      // Handle success case
+      if (onToolListChanged) {
+        onToolListChanged(tools);
+      }
+      if (onNotification) {
+        onNotification({
+          method: ToolListChangedNotificationSchema.shape.method.value,
+          params: {
+            tools,
+          },
+        } as unknown as Notification);
+      }
+    }
+  };
+
   const connect = async (_e?: unknown, retryCount: number = 0) => {
     const clientCapabilities = {
       capabilities: {
@@ -417,6 +458,11 @@ export function useConnection({
         elicitation: {},
         roots: {
           listChanged: true,
+        },
+      },
+      listChanged: {
+        tools: {
+          onChanged: handleToolListChanged,
         },
       },
     };
