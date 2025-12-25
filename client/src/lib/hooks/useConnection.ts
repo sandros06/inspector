@@ -462,9 +462,9 @@ export function useConnection({
       },
       listChanged: {
         tools: {
-          onChanged: handleToolListChanged
+          onChanged: handleToolListChanged,
         },
-      }
+      },
     };
 
     const client = new Client<Request, Notification, Result>(
@@ -739,8 +739,7 @@ export function useConnection({
           LoggingMessageNotificationSchema,
           ResourceUpdatedNotificationSchema,
           ResourceListChangedNotificationSchema,
-          //ToolListChangedNotificationSchema,
-          // setNotificationHandler OVERRIDE THE ANOTHER NOTIFICATION HANDLER  client.getNotificationHandler(notificationSchema)
+          ToolListChangedNotificationSchema,
           PromptListChangedNotificationSchema,
         ].forEach((notificationSchema) => {
           client.setNotificationHandler(notificationSchema, onNotification);
