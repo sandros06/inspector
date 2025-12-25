@@ -413,7 +413,7 @@ export function useConnection({
     }
   };
 
-  const handleToolListChanged = (err: Error | null, tools: Tool[]) => {
+  const handleToolListChanged = (err: Error | null, tools: Tool[] | null) => {
     if (err != null) {
       // Handle error - extract message safely
       const errorMessage = err.message;
@@ -460,11 +460,11 @@ export function useConnection({
           listChanged: true,
         },
       },
-      toolListChangedOptions: {
-        autoRefresh: true,
-        debounceMs: 300,
-        onToolListChanged: handleToolListChanged,
-      },
+      listChanged: {
+        tools: {
+          onChanged: handleToolListChanged
+        },
+      }
     };
 
     const client = new Client<Request, Notification, Result>(
@@ -733,7 +733,6 @@ export function useConnection({
         serverUrl.searchParams.append("transportType", transportType);
       }
 
-      console.log("notif");
       if (onNotification) {
         [
           CancelledNotificationSchema,

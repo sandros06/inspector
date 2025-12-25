@@ -360,6 +360,7 @@ const App = () => {
     // EXPERIMENTAL CALLBACK HANDLER
     onToolListChanged: (tools: Tool[]) => {
       setTools(tools);
+      setNextToolCursor(undefined);
       cacheToolOutputSchemas(tools);
     },
   });
